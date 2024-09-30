@@ -34,7 +34,7 @@ async function main() {
   /**
    * @constant - Address of the deployedAddress
    */
-  const contractAddress = "0x63605b6de24f71EfdAFB90D0De86E00A532Af61A";
+  const contractAddress = "0x5e7542EfE9F5612407258E3fB315f3431416f48F";
   /**
    * @constant - destination address
    */
@@ -44,7 +44,7 @@ async function main() {
   const [signer] = await hre.ethers.getSigners();
 
   //create a contract instance
-  const contractFactory = await hre.ethers.getContractFactory("PHOENIX");
+  const contractFactory = await hre.ethers.getContractFactory("SlimDaddy");
   const contract = contractFactory.attach(contractAddress);
 
   // Send a shielded transaction to execute a transaction in the contract

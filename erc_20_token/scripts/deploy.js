@@ -2,7 +2,7 @@ const hre = require("hardhat");
 
 
 async function main() {
-    const contract = await hre.ethers.deployContract("PHOENIX", [200]);
+    const contract = await hre.ethers.deployContract("SlimDaddy", [200]);
 
     await contract.waitForDeployment()
 
