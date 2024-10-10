@@ -14,53 +14,55 @@ const { encryptDataField, decryptNodeResponse } = require("@swisstronik/utils");
  */
 
 const sendShieldedTransaction = async (signer, destination, data, value) => {
-  // Get the RPC link from the Hardhat network configuration
+  // get RPC url from the Hardhat network configuration
   const rpcUrl = hre.network.config.url;
 
-  //Encrypt the data being sent
+  // Encrypt the data/request being made to the blockchain
   const [encryptedData] = await encryptDataField(rpcUrl, data);
 
   //construct and sign transaction with encrypted data
-
   return await signer.sendTransaction({
     from: signer.address,
     to: destination,
     data: encryptedData,
-    value,
+    value: value,
   });
 };
 
 async function main() {
-  /**
-   * @constant  Address of the deployed contract
-   */
-  const contractAddress = "0x5e7542EfE9F5612407258E3fB315f3431416f48F";
-  /**
-   * @constant  - destination address
-   */
-  const addressToTransferTo = "0x16af037878a6cAce2Ea29d39A3757aC2F6F7aac1";
+  const rapperNFTAddress = "0xd5eC20f13e1021B8e1cc5C6DD638Dd6DBCC4d6D0";
 
   // get the signer(my account)
   const [signer] = await hre.ethers.getSigners();
 
-  //create a contract instance
-  const contractFactory = await hre.ethers.getContractFactory("SlimDaddy");
-  const contract = contractFactory.attach(contractAddress);
+  // create a contract instance
+  const rapperNFTFactory = await hre.ethers.getContractFactory("RapperNFT");
+  const rapperNFTContract = rapperNFTFactory.attach(rapperNFTAddress);
+
+  // URI(public gateway) of the NFT from pinata
+  const tokenURI =
+    "https://ipfs.io/ipfs/QmRPvJCeSG3UxQCw7MkTwCUzQUtnSSRybhGmWzJ54jYT3Q";
 
   // Send a shielded transaction to execute a transaction in the contract
-  const functionName = "transferToSwisstronik";
-  const functionArgs = [addressToTransferTo, "1"];
-  const transaction = await sendShieldedTransaction(
+  const functionName = "mintNFT";
+  const functionArgs = [signer.address, tokenURI];
+  // Interacting with contract
+  console.log("Minting NFT...");
+  const txn = await sendShieldedTransaction(
     signer,
-    contractAddress,
-    contract.interface.encodeFunctionData(functionName, functionArgs),
+    rapperNFTAddress,
+    rapperNFTContract.interface.encodeFunctionData(functionName, functionArgs),
     0
   );
+  await txn.wait();
 
-  await transaction.wait();
+  // the transaction hash
+  console.log("Txn hash: ", txn.hash);
 
   // It should return a TransactionResponse object
-  console.log("Transaction Response: ", transaction);
+  console.log("Transaction Response: ", txn);
+
+  console.log("Yayy!!, the NFT has been minted");
 }
 
 main().catch((error) => {
